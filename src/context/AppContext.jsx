@@ -3,14 +3,19 @@ import { createContext, useReducer } from "react";
 // 5. The reducer - this is used to update the state, based on the action
 export const AppReducer = (state, action) => {
   let budget = 0;
+  let total_budget = 0;
+  const red_expenses = state.expenses;
+
   switch (action.type) {
     case "ADD_EXPENSE":
-      let total_budget = 0;
       total_budget = state.expenses.reduce((previousExp, currentExp) => {
         return previousExp + currentExp.cost;
       }, 0);
+      console.log(total_budget);
+
       total_budget = total_budget + action.payload.cost;
       action.type = "DONE";
+
       if (total_budget <= state.budget) {
         total_budget = 0;
         state.expenses.map((currentExp) => {
@@ -28,8 +33,9 @@ export const AppReducer = (state, action) => {
           ...state,
         };
       }
+
     case "RED_EXPENSE":
-      const red_expenses = state.expenses.map((currentExp) => {
+      red_expenses.map((currentExp) => {
         if (
           currentExp.name === action.payload.name &&
           currentExp.cost - action.payload.cost >= 0
@@ -44,6 +50,7 @@ export const AppReducer = (state, action) => {
         ...state,
         expenses: [...red_expenses],
       };
+
     case "DELETE_EXPENSE":
       action.type = "DONE";
       state.expenses.map((currentExp) => {
@@ -58,6 +65,7 @@ export const AppReducer = (state, action) => {
         ...state,
         budget,
       };
+
     case "SET_BUDGET":
       action.type = "DONE";
       state.budget = action.payload;
@@ -65,6 +73,7 @@ export const AppReducer = (state, action) => {
       return {
         ...state,
       };
+
     case "CHG_CURRENCY":
       action.type = "DONE";
       state.currency = action.payload;

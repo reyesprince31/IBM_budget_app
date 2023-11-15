@@ -1,40 +1,44 @@
-import { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 
 const Budget = () => {
-  const { budget, remainingBudget, setBudget } = useContext(AppContext);
-  const [newBudget, setNewBudget] = useState(budget);
+  const { budget, dispatch, expenses, currency } = useContext(AppContext);
 
-  const handleBudgetChange = (event) => {
-    const inputBudget = event.target.value;
+  const totalExpenses = expenses.reduce((total, item) => {
+    return (total += item.cost);
+  }, 0);
 
-    // Check if the entered value is a valid number
-    if (!isNaN(inputBudget)) {
-      const newBudgetValue = parseFloat(inputBudget);
-
-      // Check if the new budget exceeds the remaining budget
-      if (newBudgetValue <= remainingBudget) {
-        setNewBudget(newBudgetValue);
-        setBudget(newBudgetValue); // Assuming you have a function to update the budget in your context
-      } else {
-        alert("The value should not exceed the remaining budget.");
-      }
+  const handleChangeBudget = (value) => {
+    if (value <= 20000 && value >= totalExpenses) {
+      dispatch({
+        type: "SET_BUDGET",
+        payload: value,
+      });
+    } else if (value > 20000) {
+      const msg = `The value cannot exceed remaining funds ${currency}20,000`;
+      alert(msg);
     } else {
-      alert("Please enter a valid number for the budget.");
+      alert("You cannot reduce the budget value lower than the spending");
     }
   };
 
   return (
     <div className="alert alert-secondary">
-      <span>Budget:</span>
-      <input
-        type="number"
-        step="10"
-        value={newBudget}
-        onChange={handleBudgetChange}
-      />
+      <span className="d-flex flex-nowrap">
+        <div className="d-flex flex-nowrap" style={{ whiteSpace: "nowrap" }}>
+          Budget: {currency}
+        </div>
+        <input
+          className="flex-fill"
+          required="required"
+          type="number"
+          id="budget"
+          step="10"
+          value={budget}
+          style={{ marginLeft: ".25rem" }}
+          onChange={(event) => handleChangeBudget(event.target.value)}></input>
+      </span>
     </div>
   );
 };
-
 export default Budget;
